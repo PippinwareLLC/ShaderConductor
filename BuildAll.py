@@ -165,10 +165,11 @@ def Build(hostPlatform, hostArch, buildSys, compiler, arch, configuration, tblge
 		if hostPlatform == "win":
 			batCmd.AddCommand("set CC=cl.exe")
 			batCmd.AddCommand("set CXX=cl.exe")
+		policyOptions = "-DCMAKE_POLICY_VERSION=3.5 -DCMAKE_POLICY_VERSION_MINIMUM=3.5"
 		if (configuration == "clangformat"):
-			options = "-DSC_CLANGFORMAT=\"ON\""
+			options = f"-DSC_CLANGFORMAT=\"ON\" {policyOptions}"
 		else:
-			options = "-DCMAKE_BUILD_TYPE=\"%s\" -DSC_ARCH_NAME=\"%s\" %s" % (configuration, arch, tblgenOptions)
+			options = f"-DCMAKE_BUILD_TYPE=\"{configuration}\" -DSC_ARCH_NAME=\"{arch}\" {policyOptions} {tblgenOptions}".strip()
 		batCmd.AddCommand("cmake -G Ninja %s ../../" % options)
 		if tblgenMode:
 			batCmd.AddCommand("ninja clang-tblgen -j%d" % parallel)
@@ -224,7 +225,7 @@ if __name__ == "__main__":
 		hostArch = "x64"
 	elif (hostArch == "i386"):
 		hostArch = "x86"
-	elif (hostArch == "ARM64"):
+	elif (hostArch == "ARM64") or (hostArch == "arm64"):
 		hostArch = "arm64"
 	else:
 		LogError("Unknown host architecture %s.\n" % hostArch)
